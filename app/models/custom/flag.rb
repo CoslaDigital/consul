@@ -9,8 +9,8 @@ class Flag < ApplicationRecord
   end)
 
   scope :for_comments, ->(comments) { where(flaggable_type: "Comment", flaggable_id: comments) }
-  
 
+  
   def self.flag(user, flaggable)
     return false if flagged?(user, flaggable)
     puts("flag id is ",flaggable.id, flaggable)
@@ -18,7 +18,9 @@ class Flag < ApplicationRecord
       alert_title = "Moderation alert"
       alert_body = "An item has been flagged for moderation"
       alert_link = "/moderation"
+      
       admin_notification = AdminNotification.new(title: alert_title, body: alert_body, segment_recipient: "administrators", link: "/moderation/comments")
+
       admin_notification.save
       admin_notification.deliver
   end
