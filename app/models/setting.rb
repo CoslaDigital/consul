@@ -199,7 +199,7 @@ class Setting < ApplicationRecord
     end
 
     def default_org_name
-      Tenant.current&.name || default_main_org_name
+      default_main_org_name
     end
 
     def default_main_org_name
@@ -207,7 +207,7 @@ class Setting < ApplicationRecord
     end
 
     def default_mailer_from_address
-      "noreply@#{Tenant.current_host.presence || "consul.dev"}"
+      "noreply@consul.dev"
     end
 
     def reset_defaults
