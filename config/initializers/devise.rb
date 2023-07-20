@@ -14,10 +14,14 @@ Devise.setup do |config|
   # Configure the e-mail address which will be shown in Devise::Mailer,
   # note that it will be overwritten if you use your own mailer class
   # with default "from" parameter.
-  config.mailer_sender = proc { "'#{Setting["mailer_from_name"]}' <#{Setting["mailer_from_address"]}>" }
+  # We're not setting it here because it's set by the ApplicationMailer class
+  # config.mailer_sender = "please-change-me-at-config-initializers-devise@example.com"
 
   # Configure the class responsible to send e-mails.
   config.mailer = "DeviseMailer"
+
+  # Configure the parent class responsible to send e-mails.
+  config.parent_mailer = "ApplicationMailer"
 
   # ==> ORM configuration
   # Load and configure the ORM. Supports :active_record (default) and
@@ -251,17 +255,26 @@ Devise.setup do |config|
     entity_id: Rails.application.secrets.saml_entity_data
   )
 
-  # or, if you have the metadata in a String:
-  # idp_metadata = idp_metadata_parser.parse_to_hash(idp_metadata_xml)
-
-  config.omniauth :twitter, Rails.application.secrets.twitter_key, Rails.application.secrets.twitter_secret
-  config.omniauth :facebook, Rails.application.secrets.facebook_key, Rails.application.secrets.facebook_secret, scope: "email", info_fields: "email,name,verified"
-  config.omniauth :google_oauth2, Rails.application.secrets.google_oauth2_key, Rails.application.secrets.google_oauth2_secret
+  config.omniauth :twitter,
+                  Rails.application.secrets.twitter_key,
+                  Rails.application.secrets.twitter_secret,
+                  setup: OmniauthTenantSetup.twitter
+  config.omniauth :facebook,
+                  Rails.application.secrets.facebook_key,
+                  Rails.application.secrets.facebook_secret,
+                  scope: "email",
+                  info_fields: "email,name,verified",
+                  setup: OmniauthTenantSetup.facebook
+  config.omniauth :google_oauth2,
+                  Rails.application.secrets.google_oauth2_key,
+                  Rails.application.secrets.google_oauth2_secret,
+                  setup: OmniauthTenantSetup.google_oauth2
   config.omniauth :wordpress_oauth2,
                   Rails.application.secrets.wordpress_oauth2_key,
                   Rails.application.secrets.wordpress_oauth2_secret,
                   strategy_class: OmniAuth::Strategies::Wordpress,
-                  client_options: { site: Rails.application.secrets.wordpress_oauth2_site }
+                  client_options: { site: Rails.application.secrets.wordpress_oauth2_site },
+                  setup: OmniauthTenantSetup.wordpress_oauth2
   config.omniauth :saml,
                   idp_cert_fingerprint:  idp_metadata[:idp_cert_fingerprint],
                   idp_cert: idp_metadata[:idp_cert],

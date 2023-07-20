@@ -131,7 +131,8 @@ class User < ApplicationRecord
   # Get the existing user by email if the provider gives us a verified email.
   def self.first_or_initialize_for_oauth(auth)
     oauth_email           = auth.info.email
-    oauth_email_confirmed = oauth_email.present? && (auth.info.verified || auth.info.verified_email)
+    oauth_verified        = auth.info.verified || auth.info.verified_email || auth.info.email_verified
+    oauth_email_confirmed = oauth_email.present? && oauth_verified
     oauth_lacode              = auth.extra.raw_info.all.dig("urn:oid:0.9.2342.19200300.100.1.17", 0).to_s
     #oauth_full_name           = auth.extra.raw_info.all.dig("urn:oid:0.9.2342.19200300.100.1.2", 0).to_s + " " + auth.extra.raw_info.all.dig("urn:oid:0.9.2342.19200300.100.1.4", 0).to_s
     #oauth_date_of_birth = auth.extra.raw_info.all.dig("urn:oid:0.9.2342.19200300.100.1.8", 0).to_s
@@ -348,7 +349,7 @@ class User < ApplicationRecord
   end
 
   def locale
-    self[:locale] ||= I18n.default_locale.to_s
+    self[:locale] || I18n.default_locale.to_s
   end
 
   def confirmation_required?
